@@ -1,11 +1,9 @@
 // ==UserScript==
-// @name         Ctrl+Select Highlight with multi-level Undo
+// @name         Ctrl+Select Highlight with 12-Level Undo
 // @namespace    http://tampermonkey.net/
 // @version      1.5
-// @description  Highlight selected text in `HIGHLIGHT_COLOR` on Ctrl+select.
-//               Undo up to `MAX_UNDOS` highlights with Ctrl+Z. Persistent
-//               until reload. No redo support yet.
-// @author       Rahul Rajaram
+// @description  Highlight selected text in yellow on Ctrl+select. Undo up to 12 highlights with Ctrl+Z. Persistent until reload. No redo support yet.
+// @author       You
 // @match        *://*/*
 // @grant        none
 // ==/UserScript==
@@ -19,12 +17,16 @@
     const HIGHLIGHT_COLOR = 'rgb(102, 204, 0)';
 
     document.addEventListener('keydown', (e) => {
+        if (isInEditableContext()) {
+            return;
+        }
+
         if (e.key === 'Control') {
             ctrlDown = true;
         }
 
         // Handle Ctrl+Z for undo
-        if (e.key === 'z' && ctrlDown && highlightStack.length > 0 && !isInEditableContext()) {
+        if (e.key === 'z' && ctrlDown && highlightStack.length > 0) {
             // DO NOT call e.preventDefault()
             const lastHighlight = highlightStack.pop();
             if (lastHighlight && document.body.contains(lastHighlight)) {
