@@ -1,14 +1,9 @@
 // ==UserScript==
-// @name         ChatGPT Project Chats Scroll Fix
+// @name         ChatGPT Projects Scroll Fix
 // @namespace    pl.4as.chatgpt
-// @version      0.8
-// @description  Makes the <ol> element after "Chats in this project" header scrollable dynamically.
-//               Current behaviour is for the ChatGPT interface to suppress scrolling. It makes it
-//               painful to locate specific chats as the only alternatives are to zoom out, or move
-//               chats outside projects, or search. This should hopefully get fixed at some point
-//               soon. See:
-//               https://community.openai.com/t/cant-scroll-chat-list-in-project-page/1139754/7
-// @author       Rahul Rajaram
+// @version      0.9
+// @description  Makes the div with class "contain-inline-size" dynamically scrollable
+// @author       ChatGPT
 // @match        *://chatgpt.com/*
 // @match        *://chat.openai.com/*
 // @run-at       document-start
@@ -18,31 +13,26 @@
 (function() {
     'use strict';
 
-    function makeOlScrollable() {
-        const headers = document.querySelectorAll('h3');
+    function makeDivScrollable() {
+        const scrollableDivs = document.querySelectorAll('div.contain-inline-size');
 
-        headers.forEach(h3 => {
-            if (h3.textContent.trim() === 'Chats in this project') {
-                const olElement = h3.nextElementSibling;
-                if (olElement && olElement.tagName.toLowerCase() === 'ol') {
-                    const rect = olElement.getBoundingClientRect();
-                    const availableHeight = window.innerHeight - rect.top - 20; // 20px padding from bottom
-                    olElement.style.overflowY = 'auto';
-                    olElement.style.maxHeight = availableHeight + 'px';
-                }
-            }
+        scrollableDivs.forEach(div => {
+            const rect = div.getBoundingClientRect();
+            const availableHeight = window.innerHeight - rect.top - 20; // 20px padding from bottom
+            div.style.overflowY = 'auto';
+            div.style.maxHeight = availableHeight + 'px';
         });
     }
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", makeOlScrollable);
+        document.addEventListener("DOMContentLoaded", makeDivScrollable);
     } else {
-        makeOlScrollable();
+        makeDivScrollable();
     }
 
-    window.addEventListener('resize', makeOlScrollable);
+    window.addEventListener('resize', makeDivScrollable);
 
     // Observe DOM changes to reapply if needed
-    const observer = new MutationObserver(makeOlScrollable);
+    const observer = new MutationObserver(makeDivScrollable);
     observer.observe(document.body, { childList: true, subtree: true });
 })();
